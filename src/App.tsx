@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
 import { AnalysisState, FullReport } from './types';
 import { analyzeRepo } from './services/geminiService';
 import { Dashboard } from './components/Dashboard';
@@ -65,6 +64,9 @@ const FeatureCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: str
 );
 
 const App = () => {
+  console.log('🚀 App component loaded');
+  console.log('🔑 Environment check:', !!process.env.GEMINI_API_KEY);
+  
   const [repoUrl, setRepoUrl] = useState('');
   const [state, setState] = useState<AnalysisState>('IDLE');
   const [report, setReport] = useState<FullReport | null>(null);
@@ -74,6 +76,7 @@ const App = () => {
     e.preventDefault();
     if (!repoUrl.trim()) return;
 
+    console.log('🔍 Starting analysis for:', repoUrl);
     setState('ANALYZING');
     setError('');
 
@@ -100,6 +103,10 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-background text-zinc-200 selection:bg-primary/30 flex flex-col relative overflow-hidden">
+      {/* Debug indicator */}
+      <div style={{position: 'fixed', top: '10px', left: '10px', background: 'red', color: 'white', padding: '5px', zIndex: 9999}}>
+        App Loaded ✅
+      </div>
       
       {/* Background Ambience */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

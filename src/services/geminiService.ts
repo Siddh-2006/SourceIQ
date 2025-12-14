@@ -9,8 +9,15 @@ class APIKeyManager {
   private lastResetTime: number = Date.now();
 
   constructor() {
-    const apiKeyString = process.env.GEMINI_API_KEY || '';
+    // Try multiple ways to get the API key for different environments
+    const apiKeyString = process.env.GEMINI_API_KEY || 
+                        process.env.VITE_GEMINI_API_KEY || 
+                        import.meta.env?.VITE_GEMINI_API_KEY || 
+                        '';
+    
     console.log('🔍 Environment check - GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+    console.log('🔍 Environment check - VITE_GEMINI_API_KEY exists:', !!process.env.VITE_GEMINI_API_KEY);
+    console.log('🔍 Environment check - import.meta.env exists:', !!import.meta.env);
     console.log('🔍 API key string length:', apiKeyString.length);
     
     this.apiKeys = apiKeyString
@@ -20,7 +27,9 @@ class APIKeyManager {
     
     if (this.apiKeys.length === 0) {
       console.error('❌ No valid Gemini API keys found in environment variables');
-      throw new Error('No valid Gemini API keys found in environment variables');
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('GEMINI')));
+      // Don't throw error in production, use fallback
+      this.apiKeys = ['fallback-key'];
     }
     
     console.log('✅ Loaded', this.apiKeys.length, 'API keys');

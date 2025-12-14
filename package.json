@@ -11,7 +11,14 @@
     "url": "https://github.com/Siddh-2006/SourceIQ.git"
   },
   "homepage": "https://github.com/Siddh-2006/SourceIQ",
-  "keywords": ["ai", "code-analysis", "repository", "quality", "security", "gemini"],
+  "keywords": [
+    "ai",
+    "code-analysis",
+    "repository",
+    "quality",
+    "security",
+    "gemini"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
