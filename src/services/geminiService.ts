@@ -117,7 +117,7 @@ async function callGeminiWithFallback(prompt: string, maxRetries: number = 3): P
         lastError.message.includes('403') ||
         lastError.message.includes('429')) {
 
-        console.log('🔄 Quota/Auth error, switching to next API key...');
+
         apiKeyManager.markCurrentKeyAsFailed();
         const nextKey = apiKeyManager.getNextKey();
 
@@ -131,7 +131,7 @@ async function callGeminiWithFallback(prompt: string, maxRetries: number = 3): P
 
       // For other errors, retry with same key
       if (attempt < maxRetries - 1) {
-        console.log(`🔄 Retrying in ${2 * (attempt + 1)} seconds...`);
+
         await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
         continue;
       }
@@ -350,23 +350,21 @@ Return ONLY a JSON object with remaining modules (keep brief):
 }
 
 export const analyzeRepo = async (repoUrl: string): Promise<FullReport> => {
-  console.log('🔍 Starting smart analysis for:', repoUrl);
-  console.log('🔑 API Keys available:', apiKeyManager.getStats().total);
+
 
   try {
-    console.log('📤 Getting basic repo info...');
     const basicInfo = await getBasicRepoInfo(repoUrl);
-
-    console.log('📤 Getting home page analysis...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+    
     const homePageInfo = await getHomePageAnalysis(repoUrl);
-
-    console.log('📤 Getting module analysis...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+    
     const moduleInfo = await getModuleAnalysis(repoUrl);
-
-    console.log('📤 Getting security analysis...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+    
     const securityInfo = await getSecurityAnalysis(repoUrl);
-
-    console.log('📤 Getting remaining modules...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+    
     const remainingInfo = await getRemainingModules(repoUrl);
 
     // Combine all results
@@ -386,7 +384,7 @@ export const analyzeRepo = async (repoUrl: string): Promise<FullReport> => {
       improvement_roadmap: remainingInfo.improvement_roadmap
     };
 
-    console.log('🎉 Smart analysis completed successfully!');
+
     return result;
 
   } catch (error) {
