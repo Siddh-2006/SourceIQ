@@ -1,0 +1,5 @@
+{
+  "name": "Repo Quality Intelligence",
+  "description": "An enterprise-grade repository evaluation platform that simulates a CTO-level code audit using Gemini.",
+  "requestFramePermissions": []
+}
