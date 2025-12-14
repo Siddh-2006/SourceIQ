@@ -9,30 +9,23 @@ class APIKeyManager {
   private lastResetTime: number = Date.now();
 
   constructor() {
-    // Try multiple ways to get the API key for different environments
-    const apiKeyString = process.env.GEMINI_API_KEY || 
-                        process.env.VITE_GEMINI_API_KEY || 
-                        import.meta.env?.VITE_GEMINI_API_KEY || 
-                        '';
-    
-    console.log('🔍 Environment check - GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
-    console.log('🔍 Environment check - VITE_GEMINI_API_KEY exists:', !!process.env.VITE_GEMINI_API_KEY);
-    console.log('🔍 Environment check - import.meta.env exists:', !!import.meta.env);
-    console.log('🔍 API key string length:', apiKeyString.length);
-    
+    // Get API key from environment variables
+    const apiKeyString = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+
+
+
     this.apiKeys = apiKeyString
       .split(',')
       .map(key => key.trim())
       .filter(key => key.length > 0);
-    
+
     if (this.apiKeys.length === 0) {
       console.error('❌ No valid Gemini API keys found in environment variables');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('GEMINI')));
       // Don't throw error in production, use fallback
       this.apiKeys = ['fallback-key'];
     }
-    
-    console.log('✅ Loaded', this.apiKeys.length, 'API keys');
+
+
   }
 
   getCurrentKey(): string {
@@ -57,7 +50,7 @@ class APIKeyManager {
         return this.apiKeys[this.currentKeyIndex];
       }
     }
-    
+
     // If all keys failed, reset and try again
     this.resetFailedKeys();
     this.currentKeyIndex = 0;
@@ -86,13 +79,13 @@ async function callGeminiWithFallback(prompt: string, maxRetries: number = 3): P
   let lastError: Error | null = null;
   const workingModel = "models/gemini-2.5-flash";
 
-  console.log('🚀 Starting API call with', apiKeyManager.getStats().available, 'available keys');
+
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const currentKey = apiKeyManager.getCurrentKey();
-      console.log(`🔑 Attempt ${attempt + 1}/${maxRetries} with API key ${apiKeyManager.getStats().current}`);
-      
+
+
       const genAI = new GoogleGenerativeAI(currentKey);
       const model = genAI.getGenerativeModel({
         model: workingModel,
@@ -102,40 +95,40 @@ async function callGeminiWithFallback(prompt: string, maxRetries: number = 3): P
         }
       });
 
-      console.log('📡 Sending request to Gemini...');
+
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       if (!text) {
         throw new Error("Empty response from Gemini");
       }
 
-      console.log('✅ Success! Response length:', text.length);
+
       return text;
 
     } catch (error) {
       lastError = error as Error;
-      console.log('❌ Error on attempt', attempt + 1, ':', lastError.message);
-      
+
+
       // Check if it's a quota/auth error (should try next key)
-      if (lastError.message.includes('quota') || 
-          lastError.message.includes('API key') || 
-          lastError.message.includes('403') ||
-          lastError.message.includes('429')) {
-        
+      if (lastError.message.includes('quota') ||
+        lastError.message.includes('API key') ||
+        lastError.message.includes('403') ||
+        lastError.message.includes('429')) {
+
         console.log('🔄 Quota/Auth error, switching to next API key...');
         apiKeyManager.markCurrentKeyAsFailed();
         const nextKey = apiKeyManager.getNextKey();
-        
+
         if (!nextKey && attempt === maxRetries - 1) {
           throw new Error(`All ${apiKeyManager.getStats().total} API keys exhausted. Last error: ${lastError.message}`);
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         continue;
       }
-      
+
       // For other errors, retry with same key
       if (attempt < maxRetries - 1) {
         console.log(`🔄 Retrying in ${2 * (attempt + 1)} seconds...`);
@@ -144,7 +137,7 @@ async function callGeminiWithFallback(prompt: string, maxRetries: number = 3): P
       }
     }
   }
-  
+
   throw lastError || new Error('Unknown error occurred');
 }
 
@@ -220,12 +213,12 @@ async function fetchRepoInfo(repoUrl: string): Promise<any> {
   try {
     const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
     if (!match) return null;
-    
+
     const [, owner, repo] = match;
     const cleanRepo = repo.replace(/\.git$/, '');
-    
+
     const response = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`);
-    
+
     if (response.ok) {
       const data = await response.json();
       return {
@@ -363,16 +356,16 @@ export const analyzeRepo = async (repoUrl: string): Promise<FullReport> => {
   try {
     console.log('📤 Getting basic repo info...');
     const basicInfo = await getBasicRepoInfo(repoUrl);
-    
+
     console.log('📤 Getting home page analysis...');
     const homePageInfo = await getHomePageAnalysis(repoUrl);
-    
+
     console.log('📤 Getting module analysis...');
     const moduleInfo = await getModuleAnalysis(repoUrl);
-    
+
     console.log('📤 Getting security analysis...');
     const securityInfo = await getSecurityAnalysis(repoUrl);
-    
+
     console.log('📤 Getting remaining modules...');
     const remainingInfo = await getRemainingModules(repoUrl);
 
@@ -395,7 +388,7 @@ export const analyzeRepo = async (repoUrl: string): Promise<FullReport> => {
 
     console.log('🎉 Smart analysis completed successfully!');
     return result;
-    
+
   } catch (error) {
     console.error('❌ Smart analysis failed:', error);
     return createFallbackResponse(repoUrl);
@@ -438,15 +431,15 @@ function createFallbackResponse(repoUrl: string): FullReport {
       documentation: { score: 80, medal: 'Gold' as const, strengths: ['Has README'], weaknesses: ['Needs more docs'], hidden_risks: [], real_world_impact: 'Good documentation', failure_scenario: 'Low risk', remediation_steps: ['Expand docs'] },
       testing: { score: 65, medal: 'Silver' as const, strengths: ['Has tests'], weaknesses: ['Coverage unknown'], hidden_risks: [], real_world_impact: 'Basic testing', failure_scenario: 'Medium risk', remediation_steps: ['Improve tests'] },
       version_control: { score: 80, medal: 'Gold' as const, strengths: ['Git practices'], weaknesses: [], hidden_risks: [], real_world_impact: 'Good practices', failure_scenario: 'Low risk', remediation_steps: [] },
-      security: { 
-        score: 70, 
-        medal: 'Silver' as const, 
-        strengths: ['Basic security practices', 'No exposed secrets detected'], 
-        weaknesses: ['Missing security headers', 'Outdated dependencies'], 
-        hidden_risks: ['Potential XSS vulnerabilities', 'Insufficient input validation'], 
-        real_world_impact: 'Moderate security posture with room for improvement', 
-        failure_scenario: 'Potential data breaches or service disruption', 
-        remediation_steps: ['Implement security headers', 'Update dependencies', 'Add input validation'], 
+      security: {
+        score: 70,
+        medal: 'Silver' as const,
+        strengths: ['Basic security practices', 'No exposed secrets detected'],
+        weaknesses: ['Missing security headers', 'Outdated dependencies'],
+        hidden_risks: ['Potential XSS vulnerabilities', 'Insufficient input validation'],
+        real_world_impact: 'Moderate security posture with room for improvement',
+        failure_scenario: 'Potential data breaches or service disruption',
+        remediation_steps: ['Implement security headers', 'Update dependencies', 'Add input validation'],
         vulnerabilities: [
           {
             issue: 'Missing Content Security Policy (CSP)',
@@ -497,9 +490,9 @@ export const chatWithRepo = async (
 
   // Fetch additional repository context if URL is provided
   let additionalContext = null;
-  if (repoUrl && (newUserMessage.toLowerCase().includes('repo') || 
-                  newUserMessage.toLowerCase().includes('project') || 
-                  newUserMessage.toLowerCase().includes('codebase'))) {
+  if (repoUrl && (newUserMessage.toLowerCase().includes('repo') ||
+    newUserMessage.toLowerCase().includes('project') ||
+    newUserMessage.toLowerCase().includes('codebase'))) {
     additionalContext = await fetchRepoInfo(repoUrl);
   }
 

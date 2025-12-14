@@ -53,20 +53,23 @@ const CinematicLoader = () => {
   );
 };
 
+// Feature Card Component
 const FeatureCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: string }) => (
-  <div className="p-6 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-500 group animate-slide-up hover:-translate-y-1" style={{ animationDelay: delay }}>
-    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/5">
-      <Icon className="text-white group-hover:text-primary transition-colors" size={24} />
+  <div 
+    className="group p-6 bg-surface/30 backdrop-blur-md border border-white/5 rounded-2xl hover:border-white/20 transition-all duration-500 hover:bg-surface/50 animate-slide-up"
+    style={{ animationDelay: delay }}
+  >
+    <div className="flex items-center gap-4 mb-4">
+      <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 text-primary group-hover:scale-110 transition-transform">
+        <Icon size={24} />
+      </div>
+      <h3 className="font-bold text-white text-lg tracking-tight">{title}</h3>
     </div>
-    <h3 className="text-white font-bold text-lg mb-2 tracking-tight">{title}</h3>
-    <p className="text-zinc-400 text-sm leading-relaxed">{desc}</p>
+    <p className="text-zinc-400 leading-relaxed text-sm">{desc}</p>
   </div>
 );
 
 const App = () => {
-  console.log('🚀 App component loaded');
-  console.log('🔑 Environment check:', !!process.env.GEMINI_API_KEY);
-  
   const [repoUrl, setRepoUrl] = useState('');
   const [state, setState] = useState<AnalysisState>('IDLE');
   const [report, setReport] = useState<FullReport | null>(null);
@@ -76,7 +79,6 @@ const App = () => {
     e.preventDefault();
     if (!repoUrl.trim()) return;
 
-    console.log('🔍 Starting analysis for:', repoUrl);
     setState('ANALYZING');
     setError('');
 
@@ -103,10 +105,6 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-background text-zinc-200 selection:bg-primary/30 flex flex-col relative overflow-hidden">
-      {/* Debug indicator */}
-      <div style={{position: 'fixed', top: '10px', left: '10px', background: 'red', color: 'white', padding: '5px', zIndex: 9999}}>
-        App Loaded ✅
-      </div>
       
       {/* Background Ambience */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -159,8 +157,6 @@ const App = () => {
               </form>
             </div>
 
-
-
             {state === 'ERROR' && (
               <div className="max-w-2xl mx-auto bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-lg text-sm flex items-center justify-center gap-2 animate-fade-in">
                 <AlertOctagon size={16} />
@@ -190,37 +186,36 @@ const App = () => {
                />
                <FeatureCard 
                   icon={TrendingUp}
-                  title="Scalability Roadmap"
-                  desc="A step-by-step technical debt reduction plan to prepare for your next million users."
+                  title="Scale Intelligence"
+                  desc="Identify bottlenecks and architectural limits before they impact growth."
                   delay="400ms"
                />
             </div>
 
           </div>
         ) : (
-          <div className="w-full max-w-xl text-center space-y-8 animate-fade-in py-20">
-             <div className="mb-8">
-               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-mono mb-6 border border-primary/20">
-                 <Terminal size={12} />
-                 REMOTE CONNECTION ESTABLISHED
-               </div>
-               <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">Auditing Repository</h2>
-               <p className="text-zinc-500 font-mono text-sm">{repoUrl}</p>
-             </div>
-             <CinematicLoader />
+          // ANALYZING STATE
+          <div className="w-full max-w-2xl mx-auto text-center space-y-8 animate-fade-in">
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Cpu className="text-primary animate-pulse" size={32} />
+                <h2 className="text-3xl font-bold text-white tracking-tight">Analyzing Repository</h2>
+              </div>
+              <p className="text-zinc-400 text-lg">
+                Our AI is performing a comprehensive audit of <span className="text-white font-mono">{repoUrl}</span>
+              </p>
+            </div>
+            
+            <CinematicLoader />
+            
+            <div className="flex items-center justify-center gap-2 text-zinc-500 text-sm font-mono">
+              <Terminal size={14} />
+              <span>This usually takes 30-60 seconds...</span>
+            </div>
           </div>
         )}
-
+        
       </main>
-
-      {/* Personalized Footer */}
-      <footer className="relative z-10 py-8 text-center border-t border-white/5 bg-black/20 backdrop-blur-sm">
-        <div className="flex items-center justify-center gap-2 text-zinc-500 text-sm font-medium tracking-wide">
-           <span>Made with</span>
-           <span className="text-rose-500 animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]">❤️</span>
-           <span>and code by <span className="text-white font-bold hover:text-primary transition-colors cursor-default">Siddh</span></span>
-        </div>
-      </footer>
     </div>
   );
 };
